@@ -1,0 +1,14 @@
+<ion-header  id="menu-head">
+  <ion-toolbar>
+    <ion-buttons *ngIf="!notHome" slot="start">
+      <ion-button (click)="back()">Back</ion-button>
+    </ion-buttons>
+    <ion-title >{{value}}</ion-title>
+      <ion-avatar slot="end">
+        <img src="assets/images/user/avater.jpg">
+      </ion-avatar>
+    
+
+    
+  </ion-toolbar>
+</ion-header>

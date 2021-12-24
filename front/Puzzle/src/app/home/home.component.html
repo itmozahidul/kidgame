@@ -1,0 +1,12 @@
+<app-menu [value]="v"></app-menu>
+<ion-content [fullscreen]="true">
+  
+
+  <div id="container">
+    <div class="menu-item">
+      <ion-card *ngFor = "let item of items"routerLink="/{{item}}">
+        {{item}}
+      </ion-card>
+    </div>
+  </div>
+</ion-content>

@@ -1,0 +1,8 @@
+{
+  "name": "Puzzle",
+  "integrations": {
+    "cordova": {},
+    "capacitor": {}
+  },
+  "type": "angular"
+}

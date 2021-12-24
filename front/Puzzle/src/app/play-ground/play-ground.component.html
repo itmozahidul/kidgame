@@ -1,0 +1,29 @@
+
+<ion-grid>
+  <ion-col size="12">
+     <ion-row size = "3">
+       <ion-col size = "4">
+        <div class="rtime" *ngIf="strt else elseblock" >
+          <img  src="../../assets/images/app/background/start.png"  >
+        </div>  
+        <ng-template #elseblock>
+          <div class="stime">
+            <img  (click)="rearange()"  src="../../assets/images/app/background/start.png"  >
+          </div>>
+        </ng-template>
+       </ion-col>
+       <ion-col size = "4">
+        <img  *ngIf="strt" class="time" src="../../assets/images/app/background/clock.gif"  >
+       </ion-col>
+       <ion-col size = "4">
+        <div class="digit">{{timeGone}}</div>
+       </ion-col>
+     </ion-row>
+     <ion-row size = "9">
+      <div id="cnv" #cnvs class="play-ground-field"></div>
+     </ion-row>
+  </ion-col>
+</ion-grid>
+
+
+

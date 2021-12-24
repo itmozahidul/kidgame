@@ -1,0 +1,22 @@
+ ion-title{
+    text-align: center;
+    //background-color: rgb(1, 26, 58) !important;
+    //color: rgb(255, 255, 255) !important;
+  }
+  /*ion-header{
+    //padding-top: 0% !important;
+  }   */
+  ion-avatar{
+    padding: 1.2%;
+  }
+  ion-button{
+    border-right:3px solid grey;
+    border-bottom:3px solid grey;
+    background-color: rgb(184, 184, 184);
+    border-radius: 13%;
+    color:white;
+  }
+  ion-button:hover{
+    background-color: rgb(46, 46, 46);
+    color:rgb(125, 199, 42);
+  }
