@@ -4,11 +4,17 @@ import * as action from '../Store/action';
 export interface State {
   imgList: any[];
   crntImgList:any[];
+  pSelectedImage:string;
+  level:string;
+  timer:string,
 }
 
 export const initialState: State = {
     imgList: [],
     crntImgList: [],
+    pSelectedImage:"assets/images/puzzle/pic_1.jpg",
+    level:"Easy",
+    timer:"yes"
   };
 
   export const gameReducer = createReducer(
@@ -29,4 +35,28 @@ export const initialState: State = {
             crntImgList: newCrntImgList,
         };
     }),
+    on(action.updateSelectedImage, (state,{selectedImg}) => {
+      var newSelectedImg = selectedImg;
+      console.log("in dispatch  selected Image ");
+      return {
+          ...state,
+          pSelectedImage: newSelectedImg,
+      };
+    }),
+    on(action.updateLevel, (state,{level})=>{
+      var newLevel = level;
+      return {
+        ...state,
+        level:newLevel,
+      };
+    }),
+    on(action.updateTimerMode, (state,{timer})=>{
+      var newTimer = timer;
+      console.log("in dispatch Timer ");
+      return {
+        ...state,
+        timer:newTimer,
+      }
+    })
   );  
+  

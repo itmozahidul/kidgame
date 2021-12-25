@@ -12,7 +12,7 @@ export class SucessComponent implements OnInit {
 
   ngOnInit() {
     setTimeout(()=>{
-     this.router.navigateByUrl("tran")
+     //this.router.navigateByUrl("tran")
     },2000);
   }
 

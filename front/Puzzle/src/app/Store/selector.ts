@@ -11,3 +11,12 @@ export const selectImgList = createSelector(selectgameState,(state)=>{
 export const selectCrntImgList = createSelector(selectgameState,(state)=>{
     return state.crntImgList;
 }); 
+export const selectSelectedImg = createSelector(selectgameState,(state)=>{
+    return state.pSelectedImage;
+});
+export const selectLevel = createSelector(selectgameState,(state)=>{
+    return state.level;
+});
+export const selectTimer = createSelector(selectgameState,(state)=>{
+    return state.timer;
+});

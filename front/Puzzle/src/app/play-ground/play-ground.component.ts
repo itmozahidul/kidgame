@@ -31,15 +31,16 @@ export class PlayGroundComponent implements OnInit, AfterViewInit {
   private gapNo = 1;
   private CimageList = [];
   private $CimageList:Observable<any[]>;
-  private timeToplay = 120000;
-  $imageList:Observable<any[]>;
-  tempPot:any=null;
-  emptyBlocks=[];
-  img=new Image();
-  tb:HTMLTableElement;
-  strt=false;
-  timeGone: string = "00:00";
+  private timeToplay = 300000;//6000;
+  private $imageList:Observable<any[]>;
+  private tempPot:any=null;
+  private emptyBlocks=0;
+  private img=new Image();
+  private tb:HTMLTableElement;
+  private strt=false;
+  private timeGone: string = "00 : 00";
   private timeObserver;
+  
   
   constructor(private router:Router,private location:Location, private store:Store<State>, private photos:Photos, private file:File, private camera:Camera, private general:GeneralService) { 
     console.log("Start NgInit ");
@@ -166,10 +167,10 @@ getTimerValueMinSec(){
   this.timeGone = ans;
   const numbers = timer(0, 1000);
   this.timeObserver=numbers.subscribe((t)=>{
-    console.log("timer started");
-    console.log(t);
+    /*console.log("timer updated");
+     console.log(t);
     console.log(t/60);
-    console.log(t%60);
+    console.log(t%60); */
     var minN = t/60;
     var secN = t%60;
     var min = minN.toString().split(".")[0];
@@ -394,7 +395,9 @@ endGame(){
             dele.parentElement.removeEventListener("dragover",this.dragoverfunc);
           }
           if(this.compareTwoList(this.imageList,this.CimageList)){
-            this.endGame();
+            this.timeObserver.unssubscribe();
+            console.log("#####################                    success ");
+            this.router.navigateByUrl("Start");
           }else{
             console.log("not done matching..");
           }
@@ -437,6 +440,7 @@ endGame(){
         ele.setAttribute("src","");
         ele.setAttribute("style","visibility:hidden");
         ele.parentElement.addEventListener("dragover",this.dragoverfunc);
+        this.emptyBlocks = indx;
       }else{
         i--;
       }
@@ -453,10 +457,109 @@ endGame(){
 
 
 
-
-
-
   showCropedPicDuplicate(){
+  console.log("in ShowCroppedPicDuplicate function");
+  let no =0;
+  var tb = document.createElement("table");
+  tb.setAttribute("id","tbl");
+  for( let i=1;i<=this.blockno;i++){
+    var tr = document.createElement("tr");
+    for(let j=1;j<=this.blockno;j++){
+        var td = document.createElement("td");
+        td.setAttribute("id","d_"+no.toString());
+        var image = document.createElement("img");
+        image.setAttribute("class","image");
+        image.setAttribute("draggable","true");
+        image.setAttribute("id","i_"+no.toString());
+        image.addEventListener("touchstart",(ev:TouchEvent)=>{
+          var psblMove:string[] = this.getPossiblePath(this.blockno,this.emptyBlocks);
+          if(psblMove.includes((<HTMLElement>ev.targetTouches[0].target).getAttribute("id").split("_")[1])){  
+            console.log("touch started");
+            var dele= (<HTMLElement>ev.targetTouches[0].target);
+            var tele = document.getElementById("i_"+this.emptyBlocks.toString());
+            
+            var tsrc = tele.getAttribute("src");
+            var dindex = dele.getAttribute("id").split("_")[1];
+            this.emptyBlocks = parseInt(dindex);
+            console.log("vv "+dindex);
+            var tindex = (tele.getAttribute("id")).split("_")[1];
+            console.log("vv "+tindex);
+            var crntImgList = Object.assign([], this.CimageList);
+            var tempImg = crntImgList[tindex];
+            crntImgList[tindex] = crntImgList[dindex];
+            crntImgList[dindex]= tempImg;
+            this.store.dispatch(action.updateCrntImgList({crntImgList}));
+            tele.setAttribute("src",dele.getAttribute("src"));
+            if(tele.getAttribute("src")==""){
+              tele.setAttribute("style","visibility:hidden");
+              tele.parentElement.addEventListener("dragover",this.dragoverfunc);
+            }else{
+              tele.setAttribute("style","visibility:visible");
+              tele.parentElement.removeEventListener("dragover",this.dragoverfunc);
+            }
+            dele.setAttribute("src",tsrc);
+            if(dele.getAttribute("src")==""){
+              dele.setAttribute("style","visibility:hidden");
+              dele.parentElement.addEventListener("dragover",this.dragoverfunc);
+            }else{
+              dele.setAttribute("style","visibility:visible");
+              dele.parentElement.removeEventListener("dragover",this.dragoverfunc);
+            }
+            if(this.compareTwoList(this.imageList,this.CimageList)){
+              this.timeObserver.unsubscribe();
+              console.log("#####################                    success ");
+              this.router.navigateByUrl("success");
+              console.log("start component ...");
+  
+            }else{
+              console.log("not done matching..");
+            }
+          }
+        });
+        image.src = this.CimageList[no];
+        td.appendChild(image);
+        tr.appendChild(td);
+        no++;
+    }
+    this.tb.appendChild(tr);
+  }
+}
+
+getPossiblePath(bno:number, pno:number){
+  console.log("in get possible path function ");
+  console.log(bno);
+  console.log(pno);
+
+   var ans:string[] = [];
+   let no = 0;
+   let locations:string[] = [];
+   for(let i = 0; i<bno; i++){
+     for(let j = 0; j<bno; j++){
+      console.log(no.toString()+"="+pno.toString());
+      if(no==pno){
+         locations.push((i+1).toString()+"_"+j.toString());
+         locations.push((i-1).toString()+"_"+j.toString());
+         locations.push(i.toString()+"_"+(j+1).toString());
+         locations.push(i.toString()+"_"+(j-1).toString());
+      }
+      no++;
+     }
+   }
+   no=0;
+   for(let i = 0; i<bno; i++){
+    for(let j = 0; j<bno; j++){
+     if(locations.includes(i.toString()+"_"+j.toString())){
+       ans.push(no.toString());
+     }
+     no++;
+    }
+  }
+  console.log(locations);
+  console.log(ans);
+   return ans;
+}
+
+  showCropedPicDuplicate1(){
     console.log("in ShowCroppedPicDuplicate function");
     let no = 0;
     var tb = document.createElement("table");
@@ -512,10 +615,15 @@ endGame(){
             dele.parentElement.removeEventListener("dragover",this.dragoverfunc);
           }
           if(this.compareTwoList(this.imageList,this.CimageList)){
-            this.endGame();
+            this.timeObserver.unsubscribe();
+            console.log("#####################                    success ");
+            this.router.navigateByUrl("success");
+            console.log("start component ...");
+
           }else{
             console.log("not done matching..");
           }
+
         });
         console.log(no);
         image.src = this.CimageList[no];

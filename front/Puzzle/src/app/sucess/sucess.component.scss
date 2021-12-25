@@ -1,15 +1,19 @@
 .suc{
-    background-color:rgba(255, 0, 0, 0);
+    --background: url("../../assets/images/app/background/fireWork.gif")  0 0/100% 100% no-repeat;
     height: 100%;
 }
 .suc-image{
     display: block;
     height: 100%;
     
+    
 
 }
 .suc-card{
-position: absolute;
+    position: absolute;
     height: 50%;
     top: 25%;
+    left: 5.5%;
+    border: 2px solid #4bacff;
+    box-shadow: 0px 0px 20px #00a1ff, 0px 0px 80px #74e122, 0px 0px 120px red;
 }

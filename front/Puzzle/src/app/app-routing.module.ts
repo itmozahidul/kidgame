@@ -19,8 +19,13 @@ const routes: Routes = [
   },
   {
     path: 'Start',
-    component: GameComponent,
+    component: TransitionComponent,
   },
+  {
+    path: 'game',
+    component: GameComponent,
+  }
+  ,
   {
     path: 'success',
     component: SucessComponent,
@@ -28,10 +33,6 @@ const routes: Routes = [
   {
     path: 'fail',
     component: FailedComponent,
-  },
-  {
-    path: 'tran',
-    component: TransitionComponent,
   }
 ];
 

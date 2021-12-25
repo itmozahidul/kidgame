@@ -1,0 +1,57 @@
+:root {
+    --h: fit-content;
+  }
+  ion-card{
+      width:65%;
+      //--background:rgb(207, 207, 207) ;
+  }
+ion-grid{
+    //width: 100&;
+    //height: 100%;
+}
+ion-col{
+   
+   
+}
+ion-row{
+    
+}
+.left-main-col{
+ position: relative;
+ height: var(--h);
+ overflow-x:hidden;
+ overflow-y:scroll;
+ width: fit-content;
+ //padding: 3vw;
+ background-color: black;
+ border: 0px solid white;
+ border-radius: 10px;
+
+}
+.selectedImg{
+    box-shadow: 0px 0px 20px rgb(248, 19, 19),0px 0px 20px rgb(192, 198, 245);
+}
+.puzlImage{
+ 
+ //width:50%;
+ height:20vw;
+ width: 20vw;
+ margin: 5vw;
+ border:3px solid rgb(224, 228, 10);
+ box-shadow: 0px 0px 10px rgb(160, 248, 19),0px 0px 10px rgb(192, 198, 245);
+}
+img{
+    display: block;
+}
+ion-image{
+    //--size:100px;
+    height: 4vh;
+    width: fit-content;
+    //height: fit-content;
+}
+ion-label{
+    font-size: 3vw !important;
+    position: absolute;
+    left: 25%;
+    color: rgb(87, 87, 87) !important;
+}

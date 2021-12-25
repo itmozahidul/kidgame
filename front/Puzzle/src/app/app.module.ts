@@ -24,12 +24,14 @@ import { StoreDevtoolsModule } from '@ngrx/store-devtools';
 import { SucessComponent } from './sucess/sucess.component';
 import { FailedComponent } from './failed/failed.component';
 import { TransitionComponent } from './transition/transition.component';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [AppComponent,HomeComponent,MenuComponent,GameComponent,ImageComponent,PlayGroundComponent,SucessComponent,FailedComponent,TransitionComponent],
   entryComponents: [],
   imports: [
     BrowserModule,
+    FormsModule,
      IonicModule.forRoot(),
       AppRoutingModule,
       StoreModule.forRoot({'game':gameReducer.gameReducer},{
