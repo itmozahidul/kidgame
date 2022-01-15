@@ -1,6 +1,8 @@
 import { Component, Input, OnInit } from '@angular/core';
 import {Location} from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { GeneralService } from '../services/general.service';
+import { User } from '../model/user';
 
 @Component({
   selector: 'app-menu',
@@ -9,9 +11,10 @@ import { ActivatedRoute } from '@angular/router';
 })
 export class MenuComponent implements OnInit {
   private notHome:boolean=false;
+  private user :User;
   @Input('value') value:string;
-  constructor(private location:Location, private activatedRoute:ActivatedRoute) { 
-    
+  constructor(private router:Router, private location:Location, private activatedRoute:ActivatedRoute, private general:GeneralService) { 
+    this.user = general.getUser();
   }
 
   ngOnInit() {
@@ -23,7 +26,13 @@ export class MenuComponent implements OnInit {
   }
 
   back(){
-    this.location.back();
+    if(this.location.isCurrentPathEqualTo("/game")){
+      this.router.navigate(["Start"]);
+    }else if(this.location.isCurrentPathEqualTo("/Start")){
+      this.router.navigate(["home"]);
+    }else{
+      this.router.navigate(["jhome"]);
+    }
   }
 
 }

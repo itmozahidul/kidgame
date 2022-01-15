@@ -20,3 +20,12 @@ export const selectLevel = createSelector(selectgameState,(state)=>{
 export const selectTimer = createSelector(selectgameState,(state)=>{
     return state.timer;
 });
+export const selectTimeToPlay = createSelector(selectgameState,(state)=>{
+    return state.playTime;
+});
+export const selectwait = createSelector(selectgameState,(state)=>{
+    return state.wait;
+});
+/* export const selectPuzzleUser = createSelector(selectgameState,(state)=>{
+    return state.puzzleUser;
+}); */

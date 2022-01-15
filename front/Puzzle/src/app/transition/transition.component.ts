@@ -1,15 +1,17 @@
-import { Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { Store } from '@ngrx/store';
 import { State } from '../Store/reducer';
 import * as action from '../Store/action';
 import { Observable, throwError } from 'rxjs';
-import { selectLevel, selectSelectedImg, selectTimer } from '../Store/selector';
+import { selectLevel, selectSelectedImg, selectTimer, selectTimeToPlay } from '../Store/selector';
+import { GeneralService } from '../services/general.service';
+import { FormsModule } from '@angular/forms'; 
 @Component({
   selector: 'app-transition',
   templateUrl: './transition.component.html',
   styleUrls: ['./transition.component.scss'],
 })
-export class TransitionComponent implements OnInit {
+export class TransitionComponent implements OnInit, AfterViewInit {
   private images = [];
   private pth = "assets/images/puzzle/pic_";
   private imageNo = 10;
@@ -19,18 +21,27 @@ export class TransitionComponent implements OnInit {
   private levelSrc = "";
   private $level:Observable<string>;
   private level:string ="";
-  private $timer:Observable<string>;
-  private timer=";"
+  private $timer:Observable<boolean>;
+  private timer:boolean= false;
+  private timerd:boolean = false;
+  private $timeToPlay:Observable<number>;
+  private timeToPlay;
+  private timeToPlayScaler = 1;
+  private needUserName:boolean=false;
+  private user:string="";
+  private v:string = "Puzzle";
+  @ViewChild("btlst") lvEleParent:HTMLElement;
   private levels = [
     { val: 'Easy', isChecked: true, url:this.levelSrcPth+"bButton.png" },
     { val: 'Medium', isChecked: false, url:this.levelSrcPth+"bButton.png" },
     { val: 'Hard', isChecked: false, url:this.levelSrcPth+"bButton.png" },
-    { val: 'Custom', isChecked: false, url:this.levelSrcPth+"bButton.png" },
+    //{ val: 'Custom', isChecked: false, url:this.levelSrcPth+"bButton.png" },
   ];
-  constructor(private store:Store<State>) { 
+  constructor(private store:Store<State>, private general:GeneralService) { 
     this.$selectedImage = store.select(selectSelectedImg);
     this.$level = store.select(selectLevel);
     this.$timer = store.select(selectTimer);
+    this.$timeToPlay = store.select(selectTimeToPlay);
   }
 
   ngOnInit() {
@@ -40,9 +51,31 @@ export class TransitionComponent implements OnInit {
     this.$level.subscribe(d=>{this.level=d;});
     this.$timer.subscribe(d=>{this.timer=d;});
     this.levelSrc = this.levelSrcPth+"level.gif";
+    this.$timeToPlay.subscribe(d=>{this.timeToPlay=d;})
     console.log(this.level);
-    this.setLevel(document.getElementById(this.level) ,this.level);
-    
+    console.log(this.timer);
+    /* let ele:HTMLElement; 
+    let btns = document.getElementById("btnlst").childNodes;
+    btns.forEach((d:HTMLElement) => {
+      console.log(d);
+      ele = d.innerHTML==this.level?d:null;
+    });
+
+    if(ele!=null){
+      this.setLevel(ele);
+    } */
+  }
+
+  ngAfterViewInit(){
+     if(this.lvEleParent!=null ||this.lvEleParent != undefined){
+       console.log(this.lvEleParent.children);
+       let parentElement = this.lvEleParent;
+       let buttonsEle =parentElement.children;
+       console.log(buttonsEle);
+      //this.setLevel(this.lvEleParent.nativeElement);
+     }else{
+       console.log("Level element is null/undefined");
+     }
   }
 
   loadImages(){
@@ -50,6 +83,17 @@ export class TransitionComponent implements OnInit {
       this.images.push(this.pth+i.toString()+".jpg");
     }
   }
+
+
+
+  changeTimerValue(){
+    console.log("here in change timer value");
+    let timeToPlay = this.timeToPlayScaler;
+    this.store.dispatch(action.updatePlayTime({timeToPlay}));
+    console.log(this.timeToPlayScaler);
+    console.log(this.timeToPlay);
+  }
+
 
   selectPhoto(ele:HTMLElement){
     console.log("in select pic function");
@@ -62,13 +106,16 @@ export class TransitionComponent implements OnInit {
    // ele.setAttribute("style"," box-shadow: none");
   }
 
-  setLevel(ele:HTMLElement,value){
+  setLevel(value:string){
     console.log("setting the Level");
+    let ele = document.getElementById(value);
+    let level = value;
+    console.log(ele);
      console.log(value);
     switch (value) {
       case "Easy":
         this.levels.forEach(v=>{v.isChecked=v.val=="Easy"?true:false;});
-        let level = value;
+        
         console.log(value);
         this.store.dispatch(action.updateLevel({level}));
         if(ele!=null){
@@ -93,7 +140,6 @@ export class TransitionComponent implements OnInit {
         break;
       case "Custom":
         this.levels.forEach(v=>{v.isChecked=v.val=="Custom"?true:false;});
-        ele.setAttribute("style"," box-shadow: 0px 0px 20px #ccff00;");
         console.log(value);
         if(ele!=null){
           ele.setAttribute("style"," box-shadow: 0px 0px 20px #ccff00;");
@@ -105,7 +151,19 @@ export class TransitionComponent implements OnInit {
     } 
     this.levels.forEach(v=>{console.log(v)});
   }
-
+  changeTimer(){
+    let timer = this.timerd;
+    this.store.dispatch(action.updateTimerMode({timer}));
+    console.log(this.timer);
+  }
+  
+ 
+  setPlayDuration(){
+    console.log("######## in setPlayDuration ###############");
+   var  timeToPlay = this.timeToPlay;
+   this.store.dispatch(action.updatePlayTime({timeToPlay}))
+  }
+  
   setComponentHeight(){
     var r:HTMLElement = document.querySelector(':root');
     r.style.setProperty('--h',document.documentElement.clientHeight.toString()+"px");

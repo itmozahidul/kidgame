@@ -6,7 +6,10 @@ export interface State {
   crntImgList:any[];
   pSelectedImage:string;
   level:string;
-  timer:string,
+  timer:boolean,
+  playTime:number,
+  wait:boolean,
+  puzzleUser:any[];
 }
 
 export const initialState: State = {
@@ -14,7 +17,10 @@ export const initialState: State = {
     crntImgList: [],
     pSelectedImage:"assets/images/puzzle/pic_1.jpg",
     level:"Easy",
-    timer:"yes"
+    timer:false ,
+    playTime:1,
+    wait:true,
+    puzzleUser:[]
   };
 
   export const gameReducer = createReducer(
@@ -57,6 +63,33 @@ export const initialState: State = {
         ...state,
         timer:newTimer,
       }
-    })
-  );  
+    }),
+    on(action.updatePlayTime, (state,{timeToPlay})=>{
+      var newTimeToPlay = timeToPlay;
+      console.log("in dispatch play time ");
+      console.log(timeToPlay);
+    
+    return {
+      ...state,
+      playTime:newTimeToPlay,
+    }
+  }),
+  on(action.updatewait, (state,{wait})=>{
+    var newwait = wait;
+    console.log("in dispatch wait ");
   
+  return {
+    ...state,
+    wait:newwait,
+  }
+}),
+/* on(action.updatePuzzleUser, (state,{puzzleUser})=>{
+  var newPuzzleUser = puzzleUser;
+  console.log("in dispatch PuzzleUser ");
+  console.log(newPuzzleUser);
+return {
+  ...state,
+  puzzleUser:newPuzzleUser,
+}
+}) */
+  );

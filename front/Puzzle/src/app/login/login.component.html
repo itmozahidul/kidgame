@@ -1,0 +1,16 @@
+<ion-content>
+  <ion-card class="pop-up" >
+    <ion-card-header >
+        <ion-item>
+          
+          <ion-text style="font-size: 4vw;text-align: center;">Name</ion-text>
+          <!-- <ion-icon (click)="setPlayDuration()"  [routerLink] = "['/game']" [queryParams] = "{name: Puzzle}" slot="end" name="close-circle-outline"></ion-icon> -->
+        </ion-item>
+    </ion-card-header>
+    
+   <ion-card-content>
+    <ion-input [(ngModel)]="user.name" style="font-size: 4vw;"></ion-input>
+    <ion-button (click)="setUser()" color="success"  expand="full" [routerLink] = "['/Start']" [queryParams] = "{name: Puzzle}">OK</ion-button>
+   </ion-card-content>
+  </ion-card>
+</ion-content>

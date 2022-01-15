@@ -4,7 +4,7 @@
 
   <div id="container">
     <div class="menu-item">
-      <ion-card *ngFor = "let item of items"routerLink="/{{item}}">
+      <ion-card *ngFor = "let item of items" (click)="gotoSelectedComponent(item)" >
         {{item}}
       </ion-card>
     </div>

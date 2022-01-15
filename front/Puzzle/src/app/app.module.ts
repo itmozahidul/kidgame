@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { RouteReuseStrategy } from '@angular/router';
-
+import { HttpClientModule } from '@angular/common/http';
 import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 
 import { AppComponent } from './app.component';
@@ -25,13 +25,16 @@ import { SucessComponent } from './sucess/sucess.component';
 import { FailedComponent } from './failed/failed.component';
 import { TransitionComponent } from './transition/transition.component';
 import { FormsModule } from '@angular/forms';
+import { LoginComponent } from './login/login.component';
+import { GuardService } from './guard.service';
 
 @NgModule({
-  declarations: [AppComponent,HomeComponent,MenuComponent,GameComponent,ImageComponent,PlayGroundComponent,SucessComponent,FailedComponent,TransitionComponent],
+  declarations: [AppComponent,HomeComponent,MenuComponent,GameComponent,ImageComponent,PlayGroundComponent,SucessComponent,FailedComponent,TransitionComponent, LoginComponent],
   entryComponents: [],
   imports: [
     BrowserModule,
     FormsModule,
+    HttpClientModule,
      IonicModule.forRoot(),
       AppRoutingModule,
       StoreModule.forRoot({'game':gameReducer.gameReducer},{
@@ -52,6 +55,7 @@ import { FormsModule } from '@angular/forms';
     File,
     Photos,
     GeneralService,
+    GuardService,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
   bootstrap: [AppComponent],
 })

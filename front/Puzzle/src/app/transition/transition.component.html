@@ -1,5 +1,6 @@
+<app-menu [value]="v"></app-menu>
 <ion-content>
-  <ion-grid >
+  <ion-grid  >
     <ion-col size="12">
       <ion-row size="12">
         <ion-col size = "4">
@@ -7,64 +8,66 @@
              <ion-card class="puzlImage" *ngFor="let img of images">
               <img  #card (click)="selectPhoto(card)"  src="{{img}}" alt="Loading.." >
              </ion-card>
-
            </div>
         </ion-col >
         <ion-col size ="8">
           <ion-row size ="3">
-            <div class="right-main-col">
-              <ion-card class="selectedImg">
-                <img id="sm" src="{{selectedImage}}" alt="Loading..">
-              </ion-card>
-  
-            </div>
+            <ion-card class="selectedImg">
+              <img id="sm" src="{{selectedImage}}" alt="Loading..">
+            </ion-card>
           </ion-row>
           <ion-row size="2"> </ion-row>
           <ion-row size = "4">
-            <ion-col size= "12">
-              <ion-card>
-                <ion-item>
-                  <ion-thumbnail slot="start">
-                    <ion-img [src]="levelSrc"></ion-img>
-                  </ion-thumbnail>
-                  <ion-label>
-                    Level
-                  </ion-label>
-                </ion-item>
-              
-                <ion-card-content>
-                  
-                  <ion-list>
-                    <ion-item *ngFor="let entry of levels">
-                      <ion-label>{{entry.val}}</ion-label>
-                      <ion-img id="{{entry.val}}" #lv (click)="setLevel(entry.val)" src="{{entry.url}}"></ion-img>
-                    </ion-item>  
-                  </ion-list>
-                  
-                </ion-card-content>
-              </ion-card>
-            </ion-col>
+            <ion-card>
+              <ion-item>
+                <ion-thumbnail slot="start">
+                  <ion-img [src]="levelSrc"></ion-img>
+                </ion-thumbnail>
+                <ion-label>
+                  Level
+                </ion-label>
+              </ion-item>
+            
+              <ion-card-content>
+                <ion-list #btlst>
+                    <!-- <ion-label>{{entry.val}}</ion-label>
+                    <ion-img id="{{entry.val}}" #lv (click)="setLevel(entry.val)" src="{{entry.url}}"></ion-img> -->
+                    <div *ngFor="let entry of levels">
+                      <ion-button *ngIf="entry.isChecked"   (click)="setLevel(entry.val)"  color="success"  expand="full">{{entry.val}}</ion-button>
+                      <ion-button *ngIf="!entry.isChecked"  (click)="setLevel(entry.val)"  color="danger"  expand="full">{{entry.val}}</ion-button>
+                    </div> 
+                </ion-list>
+              </ion-card-content>
+            </ion-card>
           </ion-row>
           <ion-row size="1">
             <ion-card>
-              <ion-card-header>
-                <ion-item>
-                 <ion-text size="large"> Timer</ion-text>
-                </ion-item>
-              </ion-card-header>
-              <ion-card-content>
-                Yes <ion-toggle [(ngModel)]="pepperoni"></ion-toggle> No
-              </ion-card-content>
+              <ion-item>
+                <ion-label size="large" slot="start">Timer</ion-label>
+                <ion-toggle slot="end" [(ngModel)]="timerd" (ionChange)="changeTimer()"></ion-toggle>
+              </ion-item>
+              <ion-item *ngIf="timer">
+                <ion-label  size="large" slot="start">Minute</ion-label>
+                <ion-badge slot="end">{{timeToPlay}}</ion-badge>
+              </ion-item>
+              <ion-item *ngIf="timer" >
+                <ion-range min="1" max="10" step="2" pin="true" snaps="true" [(ngModel)]="timeToPlayScaler" (ionChange)="changeTimerValue()">
+                  <ion-icon size="small" slot="start" name="time"></ion-icon>
+                  <ion-icon size="large" slot="end" name="time"></ion-icon>
+                </ion-range>
+              </ion-item>
            </ion-card>
+           
           </ion-row>
-          <ion-row>
-            <ion-buttons>
-              <ion-button [routerLink] = "['/game']" [queryParams] = "{name: Puzzle}">Start</ion-button>
-            </ion-buttons>
-          </ion-row>
+          
           
         </ion-col>
       </ion-row>
     </ion-col>
   </ion-grid>
-</ion-content>
+</ion-content>  
+<ion-footer >
+  <ion-button   (click)="setPlayDuration()" color="success"  expand="full" [routerLink] = "['/game']" [queryParams] = "{name: Puzzle}">
+    Play
+  </ion-button>
+</ion-footer>

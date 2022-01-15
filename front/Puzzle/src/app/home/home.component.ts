@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-home',
@@ -14,8 +15,12 @@ export class HomeComponent implements OnInit {
     'help'
   ];
   private v:string = "Menu";
-  constructor() {}
+  constructor(private router:Router) {}
 
   ngOnInit() {}
+
+  gotoSelectedComponent(value){
+    this.router.navigate([value]);
+  }
 
 }

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { Camera } from '@ionic-native/camera/ngx';
 import { Crop } from '@ionic-native/crop/ngx';
 import { File } from '@ionic-native/file/ngx';
@@ -10,9 +10,13 @@ import {Photos} from '../../assets/scripts/Photos';
 import { GeneralService } from '../services/general.service';
 import { State } from '../Store/reducer';
 import * as action from '../Store/action';
-import { selectCrntImgList, selectgameState, selectImgList } from '../Store/selector';
+import { selectCrntImgList, selectgameState, selectImgList, selectLevel, selectSelectedImg, selectTimer, selectTimeToPlay, selectwait } from '../Store/selector';
 import {Location} from '@angular/common';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
+import { ranking } from 'src/assets/data/ranking';
+//import * as fs from 'fs';
+import { UserRank } from '../model/UserRank';
 
 @Component({
   selector: 'app-play-ground',
@@ -20,18 +24,28 @@ import { Router } from '@angular/router';
   styleUrls: ['./play-ground.component.scss'],
   encapsulation: ViewEncapsulation.None
 })
-export class PlayGroundComponent implements OnInit, AfterViewInit {
+export class PlayGroundComponent implements OnInit, AfterViewInit, OnDestroy  {
   @Input('value') image:string="";
   @ViewChild('cnvs') cnvs:ElementRef;
+  private $wait:Observable<boolean>;
+  private wait:boolean;
   private blockx=0;
   private blocky=0;
   private imageUrl:any="";
-  private blockno=3;
+  private $imageUrl:Observable<string>;
+  private blockno;
+  private $blockno:Observable<string>;
+
+  private $level:Observable<string>;
+  private level;
+  private $timer:Observable<boolean>;
+  private timer:boolean;
   private imageList=[];
   private gapNo = 1;
   private CimageList = [];
   private $CimageList:Observable<any[]>;
-  private timeToplay = 300000;//6000;
+  private $timeToPlay:Observable<number>;
+  private timeToplay = 1;
   private $imageList:Observable<any[]>;
   private tempPot:any=null;
   private emptyBlocks=0;
@@ -40,12 +54,20 @@ export class PlayGroundComponent implements OnInit, AfterViewInit {
   private strt=false;
   private timeGone: string = "00 : 00";
   private timeObserver;
+  private userList:UserRank[] = [];
+  private $userList:Observable<UserRank[]>;
+
   
   
-  constructor(private router:Router,private location:Location, private store:Store<State>, private photos:Photos, private file:File, private camera:Camera, private general:GeneralService) { 
-    console.log("Start NgInit ");
+  constructor(private http: HttpClient, private router:Router,private location:Location, private store:Store<State>, private photos:Photos, private file:File, private camera:Camera, private general:GeneralService) { 
     this.setWait();
+    //general.getUserList("puzzle");
+    console.log("Start NgInit ");
+    this.$blockno=store.select(selectLevel);
+    this.$wait=store.select(selectwait);
+    this.$timer = store.select(selectTimer);
     this.$imageList = store.select(selectImgList);
+    this.$level = store.select(selectLevel);
     this.$imageList.subscribe(res=>{
       console.log(res);
       this.imageList=res;});
@@ -53,8 +75,16 @@ export class PlayGroundComponent implements OnInit, AfterViewInit {
     this.$CimageList.subscribe(res=>{
       console.log(res);
       this.CimageList=res;});
+    this.$imageUrl = store.select(selectSelectedImg);  
+    this.$timeToPlay = store.select(selectTimeToPlay);
+    this.$userList = general.getUserList("puzzle_ranks");
+    this.$userList.subscribe(d=>{
+      if(d!=null){
+        this.userList=d;
+      }
+    });
     this.resetImgList();
-    console.log("setting wait..");
+    
     
   }
 
@@ -62,9 +92,33 @@ export class PlayGroundComponent implements OnInit, AfterViewInit {
 
 
   ngOnInit() {
-    
     console.log("ngonint");
-    this.imageUrl = "assets/images/"+this.image+".jpg";
+    //this.recordGame();
+    this.$blockno.subscribe(d=>{
+      switch (d) {
+        case "Easy":
+          this.blockno=3;
+          break;
+        case "Medium":
+          this.blockno=4;
+          break;
+        case "Hard":
+          this.blockno=5;
+          break;
+        case "Custom":
+          this.blockno=6;
+          break;
+        default:
+          break;
+      }
+    });
+    this.$imageUrl.subscribe(d=>{this.imageUrl=d;
+    console.log(d);});
+    this.$level.subscribe(d=>{this.level =d;});
+    this.$timer.subscribe(d=>{this.timer=d;});
+    this.$wait.subscribe(data=>{this.wait=data;});
+    this.$timeToPlay.subscribe(d=>{this.timeToplay=d;})
+    //this.imageUrl = "assets/images/"+this.image+".jpg";
     this.img.onload=()=>{
       console.log("p image length:"+this.img.naturalWidth);
     console.log("p image width:"+this.img.naturalHeight);
@@ -129,9 +183,12 @@ export class PlayGroundComponent implements OnInit, AfterViewInit {
     console.log("end NgInit ");
      
   }
-  ngAfterViewInit() {}
+  ngAfterViewInit() {
+    console.log("################################   #############")
+    console.log(this.timer);
+  }
 loadImage(){
-  this.imageUrl = "assets/images/"+this.image+".jpg";
+  //this.imageUrl = "assets/images/"+this.image+".jpg";
   this.img.src=this.imageUrl;
 }
 
@@ -165,7 +222,7 @@ arrangeRight(){
 getTimerValueMinSec(){
   var ans = "00:00";
   this.timeGone = ans;
-  const numbers = timer(0, 1000);
+  let numbers = timer(0, 1000);
   this.timeObserver=numbers.subscribe((t)=>{
     /*console.log("timer updated");
      console.log(t);
@@ -222,19 +279,41 @@ rearange(){
   }
   console.log("######################################################################################## 4");
   console.log(this.compareTwoList(this.imageList,this.CimageList));
-  setTimeout(()=>{
-    this.timeObserver.unsubscribe();
-    if(this.compareTwoList(this.CimageList,this.imageList)){
-      console.log("#####################                    success ");
-      this.router.navigateByUrl("Start");
-    }else{
-      console.log("#####################                    fail ");
-    }
-      this.endGame();
-  },this.timeToplay);
+  if(this.timer==true){
+    console.log("with timer:"+this.timeToplay.toString());
+    setTimeout(()=>{
+      this.timeObserver.unsubscribe();
+      if(this.compareTwoList(this.CimageList,this.imageList)){
+        console.log("#####################                    success ");
+        this.router.navigateByUrl("Start");
+      }else{
+        console.log("#####################                    fail ");
+        let data = new UserRank();
+              data.set(this.general.user.name,this.timeGone,this.prepareDate(Date.now()));
+              console.log("before push userlist ");console.log(this.userList);
+              this.userList.push(data);
+              console.log("after push ");console.log(this.userList);
+              this.recordGame("puzzle_ranks",this.userList);
+      }
+        this.endGame();
+    },(this.timeToplay*60000));
+  }else{
+    
+  }
+
   
 }
 
+prepareDate(v:number){
+let d = new Date();
+let date = d.getDate();
+let month = d.getMonth();
+let year = d.getFullYear();
+let h =d.getHours();
+let m = d.getMinutes();
+
+return date+"/"+month+"/"+year+"  "+h+":"+m;
+}
 
 endGame(){   
   this.strt=false;
@@ -284,22 +363,26 @@ endGame(){
     this.updateCss("rw",rw.toString()+"%");
   }
   setWait(){
+    this.wait=true; 
     console.log("##############################################   set wait ");
-    var r:HTMLElement = document.querySelector(':root');
+/*     var r:HTMLElement = document.querySelector(':root');
     var waitImage = new Image();
     waitImage.onload=()=>{
       var mrgn = (100-((waitImage.naturalHeight/window.screen.height)*100))/2.0;
-      waitImage.setAttribute("id","wt");
+      waitImage.setAttribute("id","wit");
       waitImage.setAttribute("style","position: absolute;background-color:grey; top: 10%;width: 100%; padding:5%; height:90%;");
       document.body.appendChild(waitImage);
     }
-    waitImage.src="assets/images/app/background/wait.gif";
+    waitImage.src="assets/images/app/background/wait.gif"; */
     console.log("##############################################   set wait  done ");
     
   }
   unsetWait(){
     console.log("################################## unset wait");
-    document.getElementById("wt").remove();
+    /* document.getElementById("wit").remove(); */
+    let wait = false;
+    this.store.dispatch(action.updatewait({wait}));
+    console.log(this.wait);
     console.log("##############################################   unset wait done");
   }
   updateCss(k:any,v:any){
@@ -506,8 +589,13 @@ endGame(){
               dele.parentElement.removeEventListener("dragover",this.dragoverfunc);
             }
             if(this.compareTwoList(this.imageList,this.CimageList)){
+              let data = new UserRank();
+              data.set(this.general.user.name,this.timeGone,"");
+              this.userList.push(data);
+              this.recordGame("ranks",this.userList);
               this.timeObserver.unsubscribe();
               console.log("#####################                    success ");
+
               this.router.navigateByUrl("success");
               console.log("start component ...");
   
@@ -523,6 +611,11 @@ endGame(){
     }
     this.tb.appendChild(tr);
   }
+}
+
+recordGame(key:string,obj:any){
+  //let rankings:UserRank[] = this.general.getUserList();
+  localStorage.setItem(key,JSON.stringify(obj));
 }
 
 getPossiblePath(bno:number, pno:number){
@@ -643,5 +736,10 @@ getPossiblePath(bno:number, pno:number){
     //this.makeGap(this.gapNo);
   }
  
-
+  ngOnDestroy(){
+    console.log("app is closing");
+    let wait = true;
+    this.store.dispatch(action.updatewait({wait}));
+    console.log(this.wait);
+  }
 }
